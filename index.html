@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>日本の放送事業者 vs IPビジネス企業：コスト構造・財務体質定量比較ダッシュボード（2024–2025）</title>
+<meta name="description" content="日本の民放キー局5社と、国内外メガIP企業・ハリウッドスタジオ・Super Indies・グローバル配信（全15社）のコンテンツ事業規模、年間番組投資額、および固定費比率（財務体質）を定量比較するインタラクティブダッシュボード。">
+<meta name="keywords" content="キー局, 放送事業者, IPビジネス, コスト構造, 固定費比率, 財務体質, Netflix, Disney, 東宝, 東映, ソニーSPE, Banijay, Warner Bros, 財務分析, note連載">
+<meta name="author" content="naohisastry">
+
+<!-- OGP Settings -->
+<meta property="og:title" content="日本の放送事業者 vs IPビジネス企業：コスト構造・財務体質定量比較ダッシュボード">
+<meta property="og:description" content="日本の民放キー局の高固定費構造（78.6%）と、世界のメガIP・スタジオ・配信企業のアセットライトな財務体質を3変数バブルチャートで可視化。">
+<meta property="og:type" content="website">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #0b0f19;
+  --card: #161c2c;
+  --tx: #f3f4f6;
+  --tx2: #9ca3af;
+  --cy: #06b6d4;
+  --pp: #8b5cf6;
+  --bd: #2d3748;
+  --g: #10b981;
+  --y: #f59e0b;
+  --r: #ef4444;
+  --blue: #3b82f6;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  padding: 1.8rem;
+  line-height: 1.6;
+}
+.wrap { max-width: 1400px; margin: 0 auto; }
+
+h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, var(--cy) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.3rem;
+}
+.sub {
+  color: var(--tx2);
+  font-size: 0.95rem;
+  margin-bottom: 1.6rem;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--cy);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  margin-bottom: 0.6rem;
+}
+
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 1.4rem;
+  flex-wrap: wrap;
+}
+.tab {
+  background: none;
+  border: none;
+  color: var(--tx2);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 1.4rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+.tab:hover { color: var(--tx); }
+.tab.active {
+  color: var(--cy);
+  border-bottom-color: var(--cy);
+}
+
+/* Panels & Cards */
+.panel { display: none; }
+.panel.active { display: block; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 1.8rem;
+  margin-bottom: 1.4rem;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.card-title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.2rem;
+  background: var(--cy);
+  border-radius: 2px;
+}
+/* Chart Filter Bar */
+.chart-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.8rem;
+  background: rgba(11, 15, 25, 0.4);
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+}
+.chart-filter-label {
+  font-size: 0.82rem;
+  color: var(--tx2);
+  margin-right: 0.4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.filter-btn {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  color: var(--tx2);
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.filter-btn:hover {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: var(--cy);
+  color: var(--tx);
+  transform: translateY(-1px);
+}
+.filter-btn.active {
+  background: var(--cy);
+  border-color: var(--cy);
+  color: #0b0f19;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
+}
+
+.chart-box {
+  position: relative;
+  height: 520px;
+  width: 100%;
+}
+@media (max-width: 768px) { .chart-box { height: 380px; } }
+
+/* Analysis Insight Grid */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+.insight-card {
+  background: rgba(11, 15, 25, 0.6);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.insight-card h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.insight-card p {
+  font-size: 0.86rem;
+  color: var(--tx2);
+  line-height: 1.6;
+}
+
+/* Alerts / Notes */
+.info {
+  background: rgba(6, 182, 212, 0.1);
+  border-left: 4px solid var(--cy);
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.6;
+}
+.info b { color: var(--cy); }
+
+/* Foot & Tables */
+.foot {
+  color: var(--tx2);
+  font-size: 0.82rem;
+  margin-top: 1rem;
+  line-height: 1.65;
+  border-top: 1px solid var(--bd);
+  padding-top: 0.8rem;
+}
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+th {
+  background: #111625;
+  color: var(--tx);
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid var(--bd);
+  white-space: nowrap;
+}
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--bd);
+  color: #d1d5db;
+}
+tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+tr:hover { background: rgba(6, 182, 212, 0.05); }
+
+/* Ref Cards */
+h2 {
+  font-size: 1.4rem;
+  border-left: 4px solid var(--cy);
+  padding-left: 0.6rem;
+  margin: 1.8rem 0 1rem;
+}
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1rem;
+}
+.ref {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 1.2rem;
+  transition: transform 0.2s ease;
+}
+.ref:hover { transform: translateY(-2px); border-color: var(--cy); }
+.ref .t { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
+.ref .s { color: var(--tx2); font-size: 0.82rem; margin-bottom: 0.4rem; }
+.ref .q { color: #cbd5e1; font-style: italic; font-size: 0.85rem; margin-bottom: 0.6rem; }
+.ref a { color: var(--cy); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+.ref a:hover { text-decoration: underline; }
+
+.tag {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 700;
+  display: inline-block;
+  margin-right: 0.4rem;
+}
+.tag-blue { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.tag-green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.tag-purple { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
+.tag-orange { background: rgba(245, 158, 11, 0.2); color: #fde68a; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Media & IP Financial Architecture Dashboard</h1>
+  <div class="sub">日本の放送事業者 vs IPビジネス企業：コスト構造・財務体質定量比較（FY2024–FY2025 確定財務データ・外部基準統一版）</div>
+
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="sw('bubble')">① コスト構造・財務体質ポジショニングマップ</button>
+    <button class="tab" onclick="sw('table')">② 財務指標データ一覧</button>
+    <button class="tab" onclick="sw('sources')">③ 主要出典情報</button>
+  </div>
+
+  <!-- Panel 1: Bubble Chart (Structure Map) -->
+  <div id="p-bubble" class="panel active">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">① コスト構造・財務体質ポジショニングマップ</div>
+      </div>
+      <div class="info">
+        <b>💡 散布図から読み解く「コスト構造と財務体質（体力）」の本質</b>：<br>
+        本マップは、各社の「年間コンテンツ投資額（X軸：攻めの規模）」と「自社固定費比率（Y軸：費用の身軽さ）」、および「コンテンツ部門売上（バブル面積：事業規模）」を同時にプロットすることで、企業ごとの<strong>『リスク許容力と財務体質の決定的な違い』</strong>を可視化しています。<br><br>
+        ・<strong>日本の民放キー局（左下・赤）</strong>：24時間放送網・電波インフラ・大型スタジオ・固定人件費を自前で抱えるため、5社平均で総費用の約78.6%（個別局 74.5%〜82.0%）が固定費となっており、損益分岐点が高い「重厚インフラ体質」です。売上減の耐性が低いため、個別局の年間制作費（360〜880億円）の大型化や単発のリスク投資に踏み切れない構造的制約を抱えています。<br>
+        ・<strong>国内外メガIP・スタジオ・配信（上部〜右上）</strong>：製作委員会出資、受託制作（Cost-plus）、クラウド活用等により<strong>自社固定費比率を12〜35%に抑え、制作費の大半を「変動費化」</strong>しています。固定費が極めて身軽なため、損失リスクを限定しながら、数千億〜数兆円規模の巨額投資を世界市場で果敢に循環・スケールできる「アセットライト＆高機動体質」を実現しています。
+      </div>
+
+
+      <!-- Chart Filter Bar -->
+      <div class="chart-filter-bar">
+        <span class="chart-filter-label">🔍 比較フォーカス（横軸自動ズーム）：</span>
+        <button class="filter-btn active" onclick="filterDatasets('all', this)">🌐 全体比較 (全15社)</button>
+        <button class="filter-btn" onclick="filterDatasets('key-stations', this)">🔴 民放キー局 (個別5局＋5社計)</button>
+        <button class="filter-btn" onclick="filterDatasets('domestic-ip', this)">🔵 国内メガIP (東映・東宝)</button>
+        <button class="filter-btn" onclick="filterDatasets('indies', this)">🟡 Super Indies (Banijay・Fremantle)</button>
+        <button class="filter-btn" onclick="filterDatasets('hollywood', this)">🟣 ハリウッド・スタジオ (WBD・PARA・NBCU・SPE)</button>
+        <button class="filter-btn" onclick="filterDatasets('streamers', this)">🟢 グローバル配信 (Disney・Netflix)</button>
+        <button class="filter-btn" onclick="filterDatasets('studios-indies', this)">🎬 メガ制作・Indies横断 (IP・スタジオ・Indies)</button>
+      </div>
+
+      <div class="chart-box">
+        <canvas id="cBubble"></canvas>
+      </div>
+      <div class="foot">
+        <strong>【軸の定義とデータ仕様】</strong><br>
+        ・<strong>X軸（年間コンテンツ投資額）</strong>：対数スケール（初期 100億円〜5兆円）。自社資本を投じる投資額ベース（番組制作費、映画・アニメ製作出資枠、自社リスク開発投資枠。受託制作費は除く）。<span style="color: var(--cy); font-weight: 600;">※上のフィルターボタンまたは凡例クリックで対象を選択・変更するたびに、表示データに合わせて横軸スケールが自動ズーム・最適化されます。</span><br>
+        ・<strong>Y軸（自社固定費比率）</strong>：0%〜100%反転表示（上端0%＝身軽・変動費型 ／ 下端100%＝重厚・高固定費型）。総費用に占めるインフラ・固定人件費・減価償却費等の推定割合。<br>
+        ・<strong>バブル面積（部門売上高）</strong>：各社の映像・コンテンツ事業セグメント外部売上高を面積比例で表現（非コンテンツ事業を除外）。
+      </div>
+
+      <!-- Financial Architecture Insights -->
+      <div class="insight-grid">
+        <div class="insight-card">
+          <h4 style="color: var(--r);">🔴 民放キー局の財務体質（高固定費・電波インフラ型）</h4>
+          <p>
+            24時間365日の放送枠維持、電波送信インフラ、自社巨大スタジオ、恒常的な局員人件費により、キー局5社平均で総費用の約78.6%（個別各局 74.5%〜82.0%）がヒットの成否に関わらず恒常的に発生する固定費となっています。個別局の制作投資規模は年間360〜880億円にとどまり、重い固定費負担によって単発の大型リスクテイクが困難な財務体質となっています。
+          </p>
+        </div>
+        <div class="insight-card">
+          <h4 style="color: var(--blue);">🔵 国内メガIP・映画の財務体質（アセットライト・製作出資型）</h4>
+          <p>
+            東宝（固定費30%）は自社スタジオを持たず製作出資と配給に特化。東映（固定費35%）は撮影所を持ちつつもテレビ受託制作や製作委員会出資でリスクを外部化。固定費を極小化し、制作投資（約250〜380億円）を効率的に回収する高利益率（営業利益率15〜20%）な体質です。
+          </p>
+        </div>
+        <div class="insight-card">
+          <h4 style="color: #fbbf24;">🟡 Super Indiesの財務体質（グローバル受託・変動費型）</h4>
+          <p>
+            Banijay（固定費18%）やFremantle（固定費20%）は、制作費の8割以上を発注元（放送局・配信等）から事前調達（Cost-plus）し、自社リスク出資を200〜300億円に限定。強固なフォーマット管理と徹底した変動費化により、損失リスクを排除して事業を世界展開しています。
+          </p>
+        </div>
+        <div class="insight-card">
+          <h4 style="color: var(--pp);">🟣 ハリウッド・スタジオの財務体質（メガ制作・Arms Dealer型）</h4>
+          <p>
+            WBDやParamountはリニア放送網を抱え固定費48〜50%だが、年1兆円規模の大型制作投資を展開。一方ソニーSPEは自社SVODを持たず「Arms Dealer（外部供給）」に徹することで固定費28%という極めて身軽な高収益構造を実現しています。
+          </p>
+        </div>
+        <div class="insight-card">
+          <h4 style="color: var(--g);">🟢 グローバル配信の財務体質（直販D2C・超巨大投資型）</h4>
+          <p>
+            Netflix（固定費12%）やDisney（固定費38%）は、年間2.43兆〜3.75兆円という桁違いの自社キャッシュを直接投下。自社プラットフォーム（SVOD）で全世界のエンドユーザーに直販し、コンテンツ資産を自社バランスシート上で急速償却する巨大資本集約モデルです。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 2: Evidence Data Tables -->
+  <div id="p-table" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">② 財務指標データ一覧</div>
+        <div style="font-size: 0.85rem; color: var(--tx2);">出典：各社有価証券報告書、決算説明資料、SEC Form 10-K（FY2024–FY2025）</div>
+      </div>
+      <div class="info" style="margin-bottom: 1rem;">
+        <b>📋 帳票の閲覧ガイド</b>：本対比表は、日本の民放キー局と国内外メガIP・スタジオ・配信企業の財務体質を直接比較するため、全社を「映像・コンテンツ事業セグメント（外部顧客売上基準）」に統一しています。非放送・非コンテンツ事業（不動産、通販、テーマパーク、通信等）は除外列に明記し、連結全社売上を参考列として併記しています。
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>グループ</th>
+              <th>企業名 / エンティティ (コード)</th>
+              <th>対象年度</th>
+              <th>バブル用 部門売上 [外部基準]</th>
+              <th>採用セグメント名 (外部売上)</th>
+              <th>除外した非コンテンツ事業</th>
+              <th>連結全社売上 [参考]</th>
+              <th>営業利益 / EBITDA</th>
+              <th>年間コンテンツ投資額 [X軸]</th>
+              <th>固定費比率 [Y軸]</th>
+              <th>備考 / 留意事項</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- ① 民放キー局 -->
+            <tr>
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span></td>
+              <td><strong>日本テレビHD (9404)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>3,993億円</strong></td>
+              <td>放送事業＋放送関連事業</td>
+              <td>放送外事業 627億円 (生活健康等)</td>
+              <td>4,619億円</td>
+              <td>549億円 (11.9%)</td>
+              <td><strong>762億円</strong> (単体制作費)</td>
+              <td><strong>78.5%</strong></td>
+              <td>決算情報より生活健康（ティップネス）・不動産等の放送外事業を除いた放送・コンテンツ部門売上。</td>
+            </tr>
+            <tr>
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span></td>
+              <td><strong>TBS HD (9401)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>2,901億円</strong></td>
+              <td>放送事業＋放送関連事業</td>
+              <td>放送外事業 1,101億円 (ライフスタイル等)</td>
+              <td>4,067億円</td>
+              <td>195億円 (4.8%)</td>
+              <td><strong>883億円</strong> (単体制作費)</td>
+              <td><strong>81.2%</strong></td>
+              <td>決算情報よりライフスタイル（PLAZA等）・不動産等の放送外事業を除いた放送・コンテンツ部門売上。</td>
+            </tr>
+            <tr>
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span></td>
+              <td><strong>フジ・メディアHD (4676)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>4,024億円</strong></td>
+              <td>放送事業＋放送関連事業 (修正)</td>
+              <td>放送外事業 2,446億円 (都市開発等)</td>
+              <td>5,508億円 [*1]</td>
+              <td>180億円 (3.3%)</td>
+              <td><strong>718億円</strong> (単体制作費)</td>
+              <td><strong>76.8%</strong></td>
+              <td>決算情報より都市開発・観光（サンケイビル等）の放送外事業を除いた放送・コンテンツ部門売上。</td>
+            </tr>
+            <tr>
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span></td>
+              <td><strong>テレビ朝日HD (9409)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>2,693億円</strong></td>
+              <td>放送事業＋放送関連事業</td>
+              <td>放送外事業 707億円 (通信販売等)</td>
+              <td>3,241億円 [*1]</td>
+              <td>197億円 (6.1%)</td>
+              <td><strong>784億円</strong> (単体制作費)</td>
+              <td><strong>82.0%</strong></td>
+              <td>決算情報より通信販売（ロッピング等）等の放送外事業を除いた放送・コンテンツ部門売上。</td>
+            </tr>
+            <tr>
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span></td>
+              <td><strong>テレビ東京HD (9413)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>1,428億円</strong></td>
+              <td>放送事業＋放送関連事業</td>
+              <td>放送外事業 154億円 (不動産等)</td>
+              <td>1,558億円</td>
+              <td>78億円 (5.0%)</td>
+              <td><strong>362億円</strong> (単体制作費)</td>
+              <td><strong>74.5%</strong></td>
+              <td>決算情報より不動産等の放送外事業を除いた放送・コンテンツ部門売上（アニメ・配信ライツ含む）。</td>
+            </tr>
+            <tr style="background: rgba(239, 68, 68, 0.1); font-weight: 700;">
+              <td><span class="tag" style="background: rgba(239, 68, 68, 0.3); color: #fff;">【キー局計】</span></td>
+              <td><strong>民放キー局5社 計 / 平均</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>1兆5,039億円</strong></td>
+              <td>5局 放送＋放送関連合算</td>
+              <td>放送外 合計 5,036億円除外</td>
+              <td>1兆8,993億円</td>
+              <td>1,199億円 (6.3%)</td>
+              <td><strong>3,509億円</strong> (5社計)</td>
+              <td><strong>平均 78.6%</strong></td>
+              <td>5局合計制作費 3,509億円（社あたり362〜883億円）。非コンテンツ事業計5,036億円除外。</td>
+            </tr>
+
+            <!-- ② 国内メガIP・映画 -->
+            <tr>
+              <td><span class="tag tag-blue">② 国内IP</span></td>
+              <td><strong>東映 (9605)</strong></td>
+              <td>FY2025 (25/3期)</td>
+              <td><strong>1,340億円</strong></td>
+              <td>映像関連事業 (映画・TV・アニメ)</td>
+              <td>興行(190億)、催事(112億)、観光不動産(68億)、建築(89億) 計459億円</td>
+              <td>1,799億円</td>
+              <td>352億円 (19.5%)</td>
+              <td><strong>約380億円</strong> (制作原価)</td>
+              <td><strong>約35.0%</strong></td>
+              <td>自社撮影所を保有しつつテレビ受託と製作委員会で変動費化。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-blue">② 国内IP</span></td>
+              <td><strong>東宝 (9602)</strong></td>
+              <td>2025年2月期</td>
+              <td><strong>2,093億円</strong></td>
+              <td>映画事業 (映画営業・映画興行・映像)</td>
+              <td>演劇(229億)、不動産(797億)、その他(14億) 計1,040億円</td>
+              <td>3,132億円</td>
+              <td>647億円 (20.7%)</td>
+              <td><strong>約250億円</strong> (製作出資)</td>
+              <td><strong>約30.0%</strong></td>
+              <td>自社スタジオを持たず製作出資と配給・興行特化のアセットライト構造。</td>
+            </tr>
+
+            <!-- ③ ハリウッド・スタジオ -->
+            <tr>
+              <td><span class="tag tag-purple">③ スタジオ</span></td>
+              <td><strong>Warner Bros. Discovery</strong></td>
+              <td>FY2024 (24/12期)</td>
+              <td><strong>約5.90兆円</strong> ($39.3B)</td>
+              <td>全社（Studios＋Networks＋DTC）</td>
+              <td>専業のため全社採用</td>
+              <td>$39.3B (約5.90兆円)</td>
+              <td>Adj. EBITDA 約$9.0B</td>
+              <td><strong>約1.4兆円</strong> ($9.5B)</td>
+              <td><strong>約50.0%</strong></td>
+              <td>CNN等リニア網の固定費を抱える。Net Debt $34.6B。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">③ スタジオ</span></td>
+              <td><strong>Paramount Global</strong></td>
+              <td>FY2024 (24/12期)</td>
+              <td><strong>約4.38兆円</strong> ($29.2B)</td>
+              <td>全社（TV Media＋D2C＋Film）</td>
+              <td>専業のため全社採用</td>
+              <td>$29.2B (約4.38兆円)</td>
+              <td>Adj. OIBDA 約$3.12B (10.7%)</td>
+              <td><strong>約1.2兆円</strong> ($8.0B)</td>
+              <td><strong>約48.0%</strong></td>
+              <td>CBS全米地上波直営網とParamount+配信を保有。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">③ スタジオ</span></td>
+              <td><strong>Comcast / NBCUniversal</strong></td>
+              <td>FY2024 (24/12期)</td>
+              <td><strong>約4.69兆円</strong> ($31.29B)</td>
+              <td>Media ($23.46B) + Studios ($7.83B)</td>
+              <td>Theme Parks($8.62B)、通信インフラ除外</td>
+              <td>$123.7B (総売上)</td>
+              <td>Adj. EBITDA 約$4.53B (14.5%) ※Media+Studios</td>
+              <td><strong>約2.7兆円</strong> ($18.0B)</td>
+              <td><strong>約48.0%</strong></td>
+              <td>内部取引約$5Bを除いた外部顧客売上に統一。Universal映画・NBC番組（Comcast全社Adj. EBITDA $38.1B）。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">③ スタジオ</span></td>
+              <td><strong>ソニー・ピクチャーズ (SPE)</strong></td>
+              <td>FY2024 (25/3期)</td>
+              <td><strong>1兆5,059億円</strong> ($10.0B)</td>
+              <td>Pictures セグメント（映画・TV制作）</td>
+              <td>Game、Music、半導体、金融等除外</td>
+              <td>12兆9,571億円 (全社)</td>
+              <td>1,173億円 (7.8%)</td>
+              <td><strong>約7,000億円</strong> ($4.7B)</td>
+              <td><strong>約28.0%</strong></td>
+              <td>自社SVODを持たず他社配信・劇場へ供給するArms Dealerモデル。</td>
+            </tr>
+
+            <!-- ④ Super Indies -->
+            <tr>
+              <td><span class="tag tag-orange">④ Indies</span></td>
+              <td><strong>Banijay Group (FL Ent.)</strong></td>
+              <td>2024年12月期</td>
+              <td><strong>約5,357億円</strong> (€3,348m)</td>
+              <td>Banijay Entertainment & Live</td>
+              <td>Betclic（賭博 売上€1,456m・EBITDA€372m）除外</td>
+              <td>€4.80B (約7,680億円)</td>
+              <td>Adj. EBITDA €5.28億 (15.8%)</td>
+              <td><strong>約300億円</strong> (€180M)</td>
+              <td><strong>約18.0%</strong></td>
+              <td>世界最大Indie。制作費の8割以上を受託前受け（Cost-plus）。自社出資枠（15.8%はコンテンツ部門マージン）。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-orange">④ Indies</span></td>
+              <td><strong>Fremantle (RTL Group)</strong></td>
+              <td>2024年12月期</td>
+              <td><strong>約3,600億円</strong> (€2.25B)</td>
+              <td>Fremantle 部門売上</td>
+              <td>専業のため全社採用</td>
+              <td>€2.25B (約3,600億円)</td>
+              <td>Adj. EBITA €1.71億 (€171m)</td>
+              <td><strong>約200億円</strong> (€125M)</td>
+              <td><strong>約20.0%</strong></td>
+              <td>『Got Talent』等の世界的フォーマット保有。制作は外注変動管理。</td>
+            </tr>
+
+            <!-- ⑤ グローバル配信 -->
+            <tr>
+              <td><span class="tag tag-green">⑤ 配信</span></td>
+              <td><strong>The Walt Disney Company</strong></td>
+              <td>FY2024 (24/9期)</td>
+              <td><strong>約8.82兆円</strong> ($58.80B)</td>
+              <td>Entertainment ($41.18B) + Sports ($17.62B)</td>
+              <td>Experiences（テーマパーク $34.15B）</td>
+              <td>$91.36B (約13.7兆円)</td>
+              <td>約$6.3B (Ent $3.9B＋Sports $2.4B, 10.7%)</td>
+              <td><strong>約3.75兆円</strong> ($25.0B)</td>
+              <td><strong>約38.0%</strong></td>
+              <td>テーマパークを除外。年間3.75兆円の巨額コンテンツ資産を償却・流動化。</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-green">⑤ 配信</span></td>
+              <td><strong>Netflix</strong></td>
+              <td>FY2024 (24/12期)</td>
+              <td><strong>約5.85兆円</strong> ($39.0B)</td>
+              <td>全社（ストリーミング・コンテンツ専業）</td>
+              <td>専業のため全社採用</td>
+              <td>$39.0B (約5.85兆円)</td>
+              <td>104億ドル (26.7%)</td>
+              <td><strong>約2.43兆円</strong> ($16.2B)</td>
+              <td><strong>約12.0%</strong></td>
+              <td>電波・劇場を持たずクラウド（AWS）活用。償却費$15.3Bの変動構造。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--tx2); margin-top: 0.8rem; line-height: 1.6;">
+        [*1] <strong>キー局セグメントデータに関する注記</strong>：キー局5社の部門売上（1兆5,039億円）は、各社公表決算情報より不動産・通販・生活健康・都市開発等の「放送外（非コンテンツ）事業」合計5,036億円を厳格に除外し、放送事業および放送関連・コンテンツ事業のみを再集計した数値です。<br>
+        ※ 通貨換算レート：$1 = 150円、€1 = 160円。
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel 3: Primary Sources & Evidence Index -->
+  <div id="p-sources" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">③ 主要出典情報（個別エビデンス＆推計注記）</div>
+      </div>
+      <div class="info" style="margin-bottom: 1.2rem;">
+        <b>📋 データの透明性と算出基準について</b>：<br>
+        本ダッシュボードでは分析の客観性と透明性を担保するため、各社の有価証券報告書やSEC開示資料等に基づく<strong>「公表一次開示数値（確定実績値）」</strong>と、事業比較のために一定の前提のもとで独自に算定・按分した<strong>「推計・加工値」</strong>を明確に区分して記載しています。なお、各社で採用している事業セグメント売上は内部取引相殺前の数値等を含むため、公表連結売上高（セグメント間相殺消去後）とは一致しない場合があります。各社ごとの算出根拠および公式開示資料へのリンクは以下をご確認ください。
+      </div>
+
+      <div class="ref-grid">
+        <!-- ① 民放キー局5社 -->
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span>日本テレビHD (9404)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）／ 決算説明資料</div>
+          <div class="q">「【実測開示値】公表連結売上 4,619億円、営業利益 549億円、単体番組制作費 762億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：バブル用部門売上（3,993億円）は公表決算情報より生活健康（ティップネス443億）・不動産等の放送外事業を除外した再集計値。固定費比率（78.5%）は電波・人件費・送出網からの独自推計値。
+          </div>
+          <a href="https://www.ntvhd.co.jp/ir/securities/" target="_blank" rel="noopener">日テレHD 公式IRライブラリ（有報開示） ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span>TBS HD (9401)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）／ 決算説明資料</div>
+          <div class="q">「【実測開示値】公表連結売上 4,067億円、営業利益 195億円、単体番組制作費 883億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：バブル用部門売上（2,901億円）は公表決算情報よりライフスタイル（PLAZA等878億）・不動産等の放送外事業を除外した再集計値。固定費比率（81.2%）は独自推計値。
+          </div>
+          <a href="https://www.tbsholdings.co.jp/ir/library/" target="_blank" rel="noopener">TBS HD 公式IRライブラリ ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span>フジ・メディアHD (4676)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）／ 決算説明資料</div>
+          <div class="q">「【実測開示値】公表連結売上 5,508億円、営業利益 180億円、単体番組制作費 718億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：バブル用部門売上（4,024億円）は公表決算情報より都市開発・観光（サンケイビル等2,446億円）等の放送外事業を除外した再集計値。固定費比率（76.8%）は独自推計値。
+          </div>
+          <a href="https://www.fujimediahd.co.jp/ir/" target="_blank" rel="noopener">フジ・メディアHD 公式IR ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span>テレビ朝日HD (9409)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）／ 決算説明資料</div>
+          <div class="q">「【実測開示値】公表連結売上 3,241億円、営業利益 197億円、単体番組制作費 784億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：バブル用部門売上（2,693億円）は公表決算情報より通信販売（ロッピング等707億円）等の放送外事業を除外した再集計値。固定費比率（82.0%）は独自推計値。
+          </div>
+          <a href="https://www.tv-asahihd.co.jp/contents/ir_news/" target="_blank" rel="noopener">テレビ朝日HD IRニュース・開示資料 ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">① キー局</span>テレビ東京HD (9413)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）／ 決算説明資料</div>
+          <div class="q">「【実測開示値】公表連結売上 1,558億円、営業利益 78億円、単体番組制作費 362億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：バブル用部門売上（1,428億円）は公表決算情報より不動産等（154億円）の放送外事業を除外した再集計値（アニメ・配信ライツ含む）。固定費比率（74.5%）は独自推計値。
+          </div>
+          <a href="https://www.txhd.co.jp/ir/" target="_blank" rel="noopener">テレビ東京HD 公式IR ➔</a>
+        </div>
+
+        <!-- ② 国内メガIP・映画 -->
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-blue">② 国内IP</span>東映 (9605)</div>
+          </div>
+          <div class="s">有価証券報告書（FY2025: 2025年3月期）セグメント情報</div>
+          <div class="q">「【実測開示値】映像関連事業 外部売上 1,340億円、連結売上 1,799億円、営業利益 352億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：興行(190億)・催事(112億)・観光不動産(68億)・建築(89億)の計459億円を有報セグメントから除外。制作投資額（約380億円）はテレビ・アニメ制作原価、固定費比率（35.0%）は撮影所・常勤人件費等からの独自推計値。
+          </div>
+          <a href="https://www.toei.co.jp/ir/" target="_blank" rel="noopener">東映 公式IR情報 ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-blue">② 国内IP</span>東宝 (9602)</div>
+          </div>
+          <div class="s">有価証券報告書（2025年2月期: FY2025）セグメント情報</div>
+          <div class="q">「【実測開示値】映画事業 外部売上 2,093億円、連結売上 3,132億円、営業利益 647億円。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：演劇(229億)・不動産(797億)・その他(14億)の計1,040億円を除外。制作投資額（約250億円）は映画・アニメ製作出資枠、固定費比率（30.0%）はTOHOシネマズ設備固定費等からの独自推計値。
+          </div>
+          <a href="https://www.toho.co.jp/company/ir" target="_blank" rel="noopener">東宝 IR（投資家情報） ➔</a>
+        </div>
+
+        <!-- ③ ハリウッド・スタジオ -->
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-purple">③ スタジオ</span>Warner Bros. Discovery (WBD)</div>
+          </div>
+          <div class="s">SEC Form 10-K (FY2024 / 2024年12月期)</div>
+          <div class="q">「【実測開示値】Revenues $39.3B, Studios $11.6B, Net Debt $34.6B, Content Spend ~$9.5B.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：実態がメディア専業のため全社売上を採用。固定費比率（50.0%）はCNN・Discovery等のリニア放送網・スタジオ設備からの独自推計値。投資額（約$9.5B / 約1.4兆円）は自社リスク投資枠ベースの推計値（開示コンテンツ償却費約$13.9Bや総コンテンツ支出$20B超とは異なる）。
+          </div>
+          <a href="https://ir.wbd.com/" target="_blank" rel="noopener">WBD 公式IRサイト ➔</a> | <a href="https://www.sec.gov/edgar/browse/?CIK=1437107" target="_blank" rel="noopener">SEC EDGAR ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-purple">③ スタジオ</span>Paramount Global (PARA)</div>
+          </div>
+          <div class="s">SEC Form 10-K (FY2024 / 2024年12月期)</div>
+          <div class="q">「【実測開示値】Revenues $29.2B, Adj. OIBDA $3.12B ($3,118M), Content Production/Licensing ~$8.0B.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：実態がメディア専業のため全社売上を採用。固定費比率（48.0%）はCBS地上波直営網・配信インフラからの独自推計値。投資額（約$8.0B / 約1.2兆円）は自社リスク投資枠ベースの推計値（開示コンテンツ償却費約$13.9B等の総支出とは異なる）。
+          </div>
+          <a href="https://ir.paramount.com/" target="_blank" rel="noopener">Paramount 公式IRサイト ➔</a> | <a href="https://www.sec.gov/edgar/browse/?CIK=813828" target="_blank" rel="noopener">SEC EDGAR ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-purple">③ スタジオ</span>Comcast / NBCUniversal (CMCSA)</div>
+          </div>
+          <div class="s">Comcast Corporation SEC Form 10-K (FY2024) セグメント注記</div>
+          <div class="q">「【実測開示値】NBCUniversal Revenue from external customers: Media $23.46B + Studios $7.83B = $31.29B.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：10-K外部顧客売上（$31.29B / 約4.69兆円）を合算（内部取引約$5B・テーマパーク$8.62B・通信インフラを除外）。固定費比率（48.0%）は独自推計値。
+          </div>
+          <a href="https://www.cmcsa.com/financials/sec-filings" target="_blank" rel="noopener">Comcast SEC Filings（公式開示） ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-purple">③ スタジオ</span>ソニー・ピクチャーズ (SPE: 6758)</div>
+          </div>
+          <div class="s">ソニーグループ 有価証券報告書（FY2024: 2025年3月期）／ 決算補足資料</div>
+          <div class="q">「【実測開示値】Pictures セグメント売上 1兆5,059億円 ($10.0B)、営業利益 1,173億円 ($785M)。」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：ソニー全社（12兆9,571億）からPicturesセグメントのみ抽出。制作原価（約7,000億円 / $4.7B）は補足資料より集計。固定費比率（28.0%）はArms Dealerモデルに基づく独自推計値。
+          </div>
+          <a href="https://www.sony.com/ja/SonyInfo/IR/" target="_blank" rel="noopener">ソニーグループ 公式IRサイト ➔</a>
+        </div>
+
+        <!-- ④ Super Indies -->
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-orange">④ Indies</span>Banijay Group (FL Entertainment)</div>
+          </div>
+          <div class="s">FL Entertainment Full Year 2024 Results ／ Euronext開示</div>
+          <div class="q">「【実測開示値】コンテンツ部門売上 €3,348m (約5,357億円)、Adj. EBITDA €528m (15.8%)、205,000 hrs catalog.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：Betclic（賭博 売上€1,456m・EBITDA€372m）を除外。自社投資額（約€180M / 300億円）は自社出資・IP開発枠。固定費比率（18.0%）は受託制作（Cost-plus）中心の費用構造からの独自推計値（マージン15.8%はコンテンツ部門実績値）。
+          </div>
+          <a href="https://group.banijay.com/investor/" target="_blank" rel="noopener">Banijay Group Investor Relations ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-orange">④ Indies</span>Fremantle (RTL Group)</div>
+          </div>
+          <div class="s">RTL Group Annual Report 2024 (Fremantle Division)</div>
+          <div class="q">「【実測開示値】Fremantle Division Revenue €2,254m, Adj. EBITA €171m.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：自社投資額（約€125M / 200億円）は自社リスク開発枠。固定費比率（20.0%）はフォーマット管理・制作外注体制からの独自推計値。
+          </div>
+          <a href="https://company.rtl.com/en/investor-relations/overview/financial-publications/" target="_blank" rel="noopener">RTL Group 財務報告書（Financial Publications） ➔</a>
+        </div>
+
+        <!-- ⑤ グローバル配信 -->
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-green">⑤ 配信</span>The Walt Disney Company (DIS)</div>
+          </div>
+          <div class="s">SEC Form 10-K (FY2024 / 2024年9月期) セグメント注記</div>
+          <div class="q">「【実測開示値】Entertainment ($41.18B) + Sports ($17.62B) = $58.80B. Cash Content Spend ~$25.0B.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：10-Kよりテーマパーク（Experiences $34.15B）を除外して合算。固定費比率（38.0%）は年間3.75兆円のコンテンツ資産償却を含む費用構造からの独自推計値。投資額（約$25.0B / 約3.75兆円）は自社コンテンツ投資枠ベース（総支出や償却費とは基準が異なる）。
+          </div>
+          <a href="https://thewaltdisneycompany.com/investor-relations/" target="_blank" rel="noopener">Disney 公式IRサイト ➔</a> | <a href="https://www.sec.gov/edgar/browse/?CIK=1744489" target="_blank" rel="noopener">SEC EDGAR ➔</a>
+        </div>
+
+        <div class="ref">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+            <div class="t"><span class="tag tag-green">⑤ 配信</span>Netflix (NFLX)</div>
+          </div>
+          <div class="s">SEC Form 10-K (FY2024 / 2024年12月期)</div>
+          <div class="q">「【実測開示値】Revenues $39.0B, Operating Income $10.4B (26.7%), Cash additions to content assets $16.2B, Amortization $15.3B.」</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin: 0.5rem 0; border-top: 1px dashed var(--bd); padding-top: 0.4rem;">
+            <strong>【推計・加工注記】</strong>：全社数値は10-K直接開示値。コンテンツ現金投資額（$16.2B / 約2.43兆円）はCF計算書実額。固定費比率（12.0%）は電波・劇場を持たずクラウド（AWS）活用・コンテンツ資産償却（$15.3B）中心の費用構造からの独自推計値。
+          </div>
+          <a href="https://ir.netflix.net/" target="_blank" rel="noopener">Netflix 公式IRサイト ➔</a> | <a href="https://www.sec.gov/edgar/browse/?CIK=1065280" target="_blank" rel="noopener">SEC EDGAR ➔</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Copyright -->
+  <footer style="text-align: center; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--bd); color: var(--tx2); font-size: 0.85rem;">
+    <p id="footer-line">© 2026 Naohisa Hashimoto’S Update date:2026/08/09</p>
+  </footer>
+
+</div>
+
+<script>
+// Tab Switching
+function sw(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  const panel = document.getElementById('p-' + tabId);
+  if (panel) panel.classList.add('active');
+}
+
+// Chart.js Global Dark Theme Defaults
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.borderColor = 'rgba(45, 55, 72, 0.6)';
+Chart.defaults.font.family = "'Segoe UI', 'Noto Sans JP', sans-serif";
+
+// 1. Bubble Chart (Capital vs Fixed Cost Ratio)
+const ctxBubble = document.getElementById('cBubble').getContext('2d');
+
+// Custom Plugin for rendering labels on bubbles
+const bubbleLabelsPlugin = {
+  id: 'bubbleLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    ctx.save();
+    
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      if (meta.hidden) return;
+
+      meta.data.forEach((element, index) => {
+        const item = dataset.data[index];
+        if (!item || !item.shortName) return;
+
+        const { x, y } = element.tooltipPosition();
+        const r = element.size ? element.size / 2 : 12;
+
+        // Label config
+        ctx.font = 'bold 11px "Segoe UI", "Noto Sans JP", sans-serif';
+        const text = item.shortName;
+        const textWidth = ctx.measureText(text).width;
+        const paddingX = 6;
+        const paddingY = 4;
+        const boxWidth = textWidth + paddingX * 2;
+        const boxHeight = 18;
+
+        // Placement logic: avoid overlapping chart boundaries
+        let labelX = x + r + 6;
+        let labelY = y - 9;
+
+        // If too far right, flip to left
+        if (labelX + boxWidth > chart.chartArea.right - 10) {
+          labelX = x - r - boxWidth - 6;
+        }
+        // If too far top, push down
+        if (labelY < chart.chartArea.top + 5) {
+          labelY = chart.chartArea.top + 5;
+        }
+        // If too far bottom, push up
+        if (labelY + boxHeight > chart.chartArea.bottom - 5) {
+          labelY = chart.chartArea.bottom - boxHeight - 5;
+        }
+
+        // Draw pill background
+        ctx.fillStyle = 'rgba(11, 15, 25, 0.88)';
+        ctx.strokeStyle = dataset.borderColor || '#06b6d4';
+        ctx.lineWidth = 1.2;
+
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(labelX, labelY, boxWidth, boxHeight, 4);
+        } else {
+          ctx.rect(labelX, labelY, boxWidth, boxHeight);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // Text
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'left';
+        ctx.fillText(text, labelX + paddingX, labelY + boxHeight / 2);
+      });
+    });
+    ctx.restore();
+  }
+};
+
+// 動的X軸スケール計算＆更新関数（表示中のデータセットに合わせて横軸のmin/maxを自動最適化）
+function updateChartXAxisScale(chart) {
+  let minX = Infinity;
+  let maxX = -Infinity;
+
+  chart.data.datasets.forEach((dataset, idx) => {
+    if (chart.isDatasetVisible(idx)) {
+      dataset.data.forEach(pt => {
+        if (pt.x < minX) minX = pt.x;
+        if (pt.x > maxX) maxX = pt.x;
+      });
+    }
+  });
+
+  // 全て非表示の場合のデフォルト
+  if (minX === Infinity || maxX === -Infinity) {
+    minX = 100;
+    maxX = 50000;
+  }
+
+  // 対数スケールに適した最適な下限 (min) の決定
+  let scaleMin;
+  if (minX >= 20000) scaleMin = 10000;       // 配信のみ(2.43万〜3.75万) -> 1兆円〜
+  else if (minX >= 5000) scaleMin = 3000;    // ハリウッド含む(7000〜) -> 3000億円〜
+  else if (minX >= 1500) scaleMin = 1000;    // キー局5社計のみ等 -> 1000億円〜
+  else if (minX >= 300) scaleMin = 100;      // キー局個別・東映等(362〜) -> 100億円〜
+  else if (minX >= 100) scaleMin = 50;       // Fremantle等(200〜) -> 50億円〜
+  else scaleMin = 20;
+
+  // 対数スケールに適した最適な上限 (max) の決定
+  let scaleMax;
+  if (maxX <= 500) scaleMax = 800;           // 東宝・東映・Indiesのみ -> 800億円
+  else if (maxX <= 1000) scaleMax = 1500;    // キー局個別のみ(〜883) -> 1500億円
+  else if (maxX <= 5000) scaleMax = 6000;    // キー局5社計(3509) -> 6000億円
+  else if (maxX <= 15000) scaleMax = 20000;  // WBD/PARA/SPE -> 2兆円
+  else if (maxX <= 30000) scaleMax = 40000;  // NBCU/Netflix -> 4兆円
+  else scaleMax = 50000;                     // Disney含む -> 5兆円
+
+  chart.options.scales.x.min = scaleMin;
+  chart.options.scales.x.max = scaleMax;
+
+  const fmtLabel = (val) => {
+    if (val >= 10000) {
+      const cho = (val / 10000).toFixed(val % 10000 === 0 ? 0 : 1);
+      return `${cho}兆円`;
+    }
+    return `${val.toLocaleString()}億円`;
+  };
+
+  chart.options.scales.x.title.text = `年間コンテンツ投資額（億円：対数スケール ${fmtLabel(scaleMin)}〜${fmtLabel(scaleMax)}）`;
+  chart.update();
+}
+
+// フィルターボタン操作関数
+function filterDatasets(groupType, btnElem) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btnElem) btnElem.classList.add('active');
+
+  const chart = window.bubbleChartInstance;
+  if (!chart) return;
+
+  // 0: 民放キー局 (個別5局)
+  // 1: 民放キー局5社 (合計/平均)
+  // 2: 国内メガIP・映画
+  // 3: ハリウッド・スタジオ
+  // 4: Super Indies
+  // 5: グローバル配信
+
+  chart.data.datasets.forEach((ds, idx) => {
+    let show = false;
+    if (groupType === 'all') {
+      show = true;
+    } else if (groupType === 'key-stations') {
+      show = (idx === 0 || idx === 1);
+    } else if (groupType === 'domestic-ip') {
+      show = (idx === 2);
+    } else if (groupType === 'indies') {
+      show = (idx === 4);
+    } else if (groupType === 'hollywood') {
+      show = (idx === 3);
+    } else if (groupType === 'streamers') {
+      show = (idx === 5);
+    } else if (groupType === 'studios-indies') {
+      show = (idx === 2 || idx === 3 || idx === 4);
+    }
+
+    if (show) {
+      chart.show(idx);
+    } else {
+      chart.hide(idx);
+    }
+  });
+
+  updateChartXAxisScale(chart);
+}
+
+window.bubbleChartInstance = new Chart(ctxBubble, {
+  type: 'bubble',
+  plugins: [bubbleLabelsPlugin],
+  data: {
+    datasets: [
+      {
+        label: '民放キー局 (個別5局)',
+        data: [
+          { x: 762, y: 78.5, r: 10.1, name: '日本テレビHD', deptRev: '3,993億円', shortName: '日テレ (762億)' },
+          { x: 883, y: 81.2, r: 8.6, name: 'TBS HD', deptRev: '2,901億円', shortName: 'TBS (883億)' },
+          { x: 718, y: 76.8, r: 10.1, name: 'フジ・メディアHD', deptRev: '4,024億円', shortName: 'フジHD (718億)' },
+          { x: 784, y: 82.0, r: 8.3, name: 'テレビ朝日HD', deptRev: '2,693億円', shortName: 'テレ朝 (784億)' },
+          { x: 362, y: 74.5, r: 6.0, name: 'テレビ東京HD', deptRev: '1,428億円', shortName: 'テレ東 (362億)' }
+        ],
+        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+        borderColor: '#ef4444',
+        borderWidth: 2
+      },
+      {
+        label: '民放キー局5社 (合計/平均)',
+        data: [
+          { x: 3509, y: 78.6, r: 19.6, name: '民放キー局5社 計 / 平均', deptRev: '1兆5,039億円', shortName: '🔴 キー局5社計 (3,509億)' }
+        ],
+        backgroundColor: 'rgba(220, 38, 38, 0.85)',
+        borderColor: '#fca5a5',
+        borderWidth: 2.5
+      },
+      {
+        label: '国内メガIP・映画',
+        data: [
+          { x: 380, y: 35.0, r: 5.9, name: '東映', deptRev: '1,340億円', shortName: '🔵 東映 (制作380億)' },
+          { x: 250, y: 30.0, r: 7.3, name: '東宝', deptRev: '2,093億円', shortName: '🔵 東宝 (出資250億)' }
+        ],
+        backgroundColor: 'rgba(59, 130, 246, 0.75)',
+        borderColor: '#3b82f6',
+        borderWidth: 2
+      },
+      {
+        label: 'ハリウッド・スタジオ',
+        data: [
+          { x: 14000, y: 50.0, r: 38.9, name: 'Warner Bros. Discovery', deptRev: '約5.90兆円', shortName: '🟣 WBD (1.4兆円)' },
+          { x: 12000, y: 48.0, r: 33.5, name: 'Paramount Global', deptRev: '約4.38兆円', shortName: '🟣 Paramount (1.2兆円)' },
+          { x: 27000, y: 48.0, r: 34.7, name: 'Comcast / NBCUniversal', deptRev: '約4.69兆円 ($31.29B 外部)', shortName: '🟣 NBCU (2.7兆円)' },
+          { x: 7000, y: 28.0, r: 19.6, name: 'ソニー・ピクチャーズ (SPE)', deptRev: '1兆5,059億円', shortName: '🟣 ソニーSPE (7,000億)' }
+        ],
+        backgroundColor: 'rgba(139, 92, 246, 0.75)',
+        borderColor: '#8b5cf6',
+        borderWidth: 2
+      },
+      {
+        label: 'Super Indies',
+        data: [
+          { x: 300, y: 18.0, r: 11.7, name: 'Banijay Group', deptRev: '約5,357億円', shortName: '🟡 Banijay (自社300億)' },
+          { x: 200, y: 20.0, r: 9.6, name: 'Fremantle', deptRev: '約3,600億円', shortName: '🟡 Fremantle (自社200億)' }
+        ],
+        backgroundColor: 'rgba(245, 158, 11, 0.75)',
+        borderColor: '#f59e0b',
+        borderWidth: 2
+      },
+      {
+        label: 'グローバル配信',
+        data: [
+          { x: 37500, y: 38.0, r: 47.5, name: 'The Walt Disney Company', deptRev: '約8.82兆円', shortName: '🟢 Disney (3.75兆円)' },
+          { x: 24300, y: 12.0, r: 38.7, name: 'Netflix', deptRev: '約5.85兆円', shortName: '🟢 Netflix (2.43兆円)' }
+        ],
+        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+        borderColor: '#10b981',
+        borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: { top: 20, right: 30, bottom: 10, left: 10 }
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { boxWidth: 12, padding: 15 },
+        onClick: function(e, legendItem, legend) {
+          const index = legendItem.datasetIndex;
+          const ci = legend.chart;
+          if (ci.isDatasetVisible(index)) {
+            ci.hide(index);
+            legendItem.hidden = true;
+          } else {
+            ci.show(index);
+            legendItem.hidden = false;
+          }
+          updateChartXAxisScale(ci);
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const d = ctx.raw;
+            // 兆円繰り上げフォーマット関数
+            const fmtInvest = (val) => {
+              if (val >= 10000) {
+                const cho = (val / 10000).toFixed(val % 10000 === 0 ? 1 : 2);
+                return `約${parseFloat(cho)}兆円`;
+              }
+              return `${val.toLocaleString()}億円`;
+            };
+            return `${ctx.dataset.label}：${d.name} [部門売上: ${d.deptRev}, 番組投資額: ${fmtInvest(d.x)}, 固定費比率: ${d.y}%]`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'logarithmic',
+        title: { display: true, text: '年間コンテンツ投資額（億円：対数スケール 100億円〜5兆円）', color: '#cbd5e1' },
+        min: 100,
+        max: 50000,
+        grid: { color: 'rgba(45, 55, 72, 0.4)' }
+      },
+      y: {
+        reverse: true,
+        title: { display: true, text: '自社固定費比率（%：上端=0% 軽量・変動費型 / 下端=100% 重厚・高固定費型）', color: '#cbd5e1' },
+        min: 0,
+        max: 100,
+        grid: { color: 'rgba(45, 55, 72, 0.4)' }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
