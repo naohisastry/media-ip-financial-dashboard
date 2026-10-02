@@ -77,8 +77,15 @@ Media Industry, Financial Analysis, Cost Structure, Fixed Cost Ratio, Content In
 
 ---
 
-## 📝 版権・著作権 (Copyright & License)
-
-© 2026 Naohisa Hashimoto. All rights reserved.
+## 📝 データ出典 / Data Sources
 
 本ダッシュボードに掲載されている財務データは、各社の有価証券報告書、決算説明資料、SEC Form 10-K等の公式公表資料に基づいて収集・算定したものです。
+
+## 📄 License / ライセンス
+
+- **Code**（HTML / CSS / JavaScript）: [MIT License](LICENSE)
+- **Content**（文章・図表・分析結果・整理済みデータ）: [CC BY 4.0](LICENSE-CONTENT.md)
+- 出典表示例 / Attribution: Naohisa Hashimoto, "media-ip-financial-dashboard", https://naohisastry.github.io/media-ip-financial-dashboard/
+- 第三者の元データの権利は各発行元に帰属します。 / Third-party source data remain the property of their original publishers.
+
+© 2026 Naohisa Hashimoto
